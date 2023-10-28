@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model friendship {
+  id                                 Int       @id @default(autoincrement())
+  creatorUser                        Int
+  userReceived                       Int
+  createdAt                          DateTime? @default(now()) @db.DateTime(0)
+  acceptedAt                         DateTime? @db.DateTime(0)
+  deletedAt                          DateTime? @db.DateTime(0)
+  type                               Int       @default(1)
+  user_friendship_creatorUserTouser  user      @relation("friendship_creatorUserTouser", fields: [creatorUser], references: [id], onUpdate: Restrict, map: "friendship_FK")
+  user_friendship_userReceivedTouser user      @relation("friendship_userReceivedTouser", fields: [userReceived], references: [id], onUpdate: Restrict, map: "friendship_FK_1")
+
+  @@index([creatorUser], map: "friendship_FK")
+  @@index([userReceived], map: "friendship_FK_1")
+}
+
+model user {
+  id                                       Int            @id @default(autoincrement())
+  firstName                                String         @db.VarChar(100)
+  lastName                                 String         @db.VarChar(100)
+  nickName                                 String?        @db.VarChar(100)
+  email                                    String         @db.VarChar(255)
+  phone                                    String?        @db.VarChar(30)
+  password                                 String         @db.VarChar(255)
+  companyId                                Int?
+  schoolId                                 Int?
+  avatarImage                              String?        @db.VarChar(255)
+  backgroundImage                          String?        @db.VarChar(255)
+  servicesId                               Int?
+  postId                                   Int?
+  replyId                                  Int?
+  publishmentId                            Int?
+  communityId                              Int?
+  description                              String?        @db.VarChar(255)
+  userType                                 Int
+  awardsId                                 Int?
+  createdAt                                DateTime       @default(now()) @db.DateTime(0)
+  updatedAt                                DateTime?      @db.DateTime(0)
+  deletedAt                                DateTime?      @db.DateTime(0)
+  points                                   Int?           @default(0)
+  blockList_blockList_userOneTouser        blockList[]    @relation("blockList_userOneTouser")
+  blockList_blockList_userTwoTouser        blockList[]    @relation("blockList_userTwoTouser")
+  event                                    event[]
+  friendship_friendship_creatorUserTouser  friendship[]   @relation("friendship_creatorUserTouser")
+  friendship_friendship_userReceivedTouser friendship[]   @relation("friendship_userReceivedTouser")
+  notification                             notification[]
+  taskList_taskList_userIdTouser           taskList[]     @relation("taskList_userIdTouser")
+  taskList_taskList_parentIdTouser         taskList[]     @relation("taskList_parentIdTouser")
+}
+
+model blockList {
+  id                           Int       @id @default(autoincrement())
+  userOne                      Int
+  userTwo                      Int
+  type                         Int       @default(1)
+  createdAt                    DateTime  @default(now()) @db.DateTime(0)
+  updatedAt                    DateTime? @db.DateTime(0)
+  deletedAt                    DateTime? @db.DateTime(0)
+  user_blockList_userOneTouser user      @relation("blockList_userOneTouser", fields: [userOne], references: [id], onUpdate: Restrict, map: "blockList_FK")
+  user_blockList_userTwoTouser user      @relation("blockList_userTwoTouser", fields: [userTwo], references: [id], onUpdate: Restrict, map: "blockList_FK_1")
+
+  @@index([userOne], map: "blockList_FK")
+  @@index([userTwo], map: "blockList_FK_1")
+}
+
+model community {
+  id            Int       @id
+  name          String    @db.VarChar(255)
+  authorId      Int
+  adminId       Int?
+  description   String    @db.VarChar(255)
+  topicId       Int?
+  membersId     Int?
+  recommendedId Int?
+  createdAt     DateTime  @default(now()) @db.DateTime(0)
+  updatedAt     DateTime? @db.DateTime(0)
+  deletedAt     DateTime? @db.DateTime(0)
+}
+
+model posts {
+  id          Int       @id
+  userId      Int?
+  image       String?   @db.VarChar(255)
+  title       String    @db.VarChar(100)
+  description String    @db.VarChar(255)
+  sharedId    BigInt?
+  commentsId  BigInt?
+  likeId      BigInt?
+  url         String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @db.DateTime(0)
+  updatedAt   DateTime? @db.DateTime(0)
+  deletedAt   DateTime? @db.DateTime(0)
+}
+
+model publishments {
+  id          Int       @id
+  userId      Int?
+  image       String?   @db.VarChar(255)
+  title       String    @db.VarChar(100)
+  description String    @db.VarChar(255)
+  sharedId    BigInt?
+  commentsId  BigInt?
+  likeId      BigInt?
+  url         String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @db.DateTime(0)
+  updatedAt   DateTime? @db.DateTime(0)
+  deletedAt   DateTime? @db.DateTime(0)
+}
+
+model topics {
+  id          Int       @id
+  userId      Int?
+  image       String?   @db.VarChar(255)
+  title       String    @db.VarChar(100)
+  description String    @db.VarChar(255)
+  sharedId    BigInt?
+  commentsId  BigInt?
+  likeId      BigInt?
+  url         String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @db.DateTime(0)
+  updatedAt   DateTime? @db.DateTime(0)
+  deletedAt   DateTime? @db.DateTime(0)
+}
+
+model taskList {
+  id                           Int       @id @default(autoincrement())
+  userId                       Int?
+  parentId                     Int?
+  name                         String?   @db.VarChar(255)
+  description                  String?   @db.VarChar(255)
+  maxDateValidate              DateTime? @db.DateTime(0)
+  createdAt                    DateTime? @db.DateTime(0)
+  updatedAt                    DateTime? @db.DateTime(0)
+  deletedAt                    DateTime? @db.DateTime(0)
+  task                         task[]
+  user_taskList_userIdTouser   user?     @relation("taskList_userIdTouser", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "taskList_FK")
+  user_taskList_parentIdTouser user?     @relation("taskList_parentIdTouser", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "taskList_FK_1")
+
+  @@index([userId], map: "taskList_FK")
+  @@index([parentId], map: "taskList_FK_1")
+}
+
+model task {
+  id          Int       @id @default(autoincrement())
+  name        String?   @db.VarChar(100)
+  description String?   @db.VarChar(255)
+  value       Int?
+  listId      Int?
+  createdAt   DateTime? @db.DateTime(0)
+  updatedAt   DateTime? @db.DateTime(0)
+  deletedAt   DateTime? @db.DateTime(0)
+  taskList    taskList? @relation(fields: [listId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "task_FK")
+
+  @@index([listId], map: "task_FK")
+}
+
+model category {
+  id        Int       @id @default(autoincrement())
+  name      String?   @db.VarChar(255)
+  createdAt DateTime? @db.DateTime(0)
+  updatedAt DateTime? @db.DateTime(0)
+  deletedAt DateTime? @db.DateTime(0)
+  event     event[]
+}
+
+model event {
+  id             Int           @id @default(autoincrement())
+  userId         Int?
+  name           String?       @db.VarChar(255)
+  description    String?       @db.VarChar(255)
+  categoryId     Int?
+  notificationId Int?
+  date           DateTime?     @db.DateTime(0)
+  createdAt      DateTime?     @db.DateTime(0)
+  updatedAt      DateTime?     @db.DateTime(0)
+  deletedAt      DateTime?     @db.DateTime(0)
+  category       category?     @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "event_FK")
+  user           user?         @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "event_FK_1")
+  notification   notification? @relation(fields: [notificationId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "event_FK_2")
+
+  @@index([categoryId], map: "event_FK")
+  @@index([userId], map: "event_FK_1")
+  @@index([notificationId], map: "event_FK_2")
+}
+
+model notification {
+  id          Int       @id @default(autoincrement())
+  name        String?   @db.VarChar(255)
+  description String?   @db.VarChar(255)
+  date        DateTime? @db.DateTime(0)
+  createdAt   DateTime? @db.DateTime(0)
+  updatedAt   DateTime? @db.DateTime(0)
+  deletedAt   DateTime? @db.DateTime(0)
+  userId      Int?
+  event       event[]
+  user        user?     @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "notification_FK")
+
+  @@index([userId], map: "notification_FK")
+}
